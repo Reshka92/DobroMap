@@ -1,4 +1,5 @@
- let map;
+
+let map;
 
         // Функция инициализации карты
         function initMap() {

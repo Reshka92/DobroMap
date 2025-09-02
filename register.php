@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="container">
+    <div class="container" >
         <div class="logo">
             <h1>Регистрация</h1>
         </div>
@@ -35,6 +36,34 @@
             
             <div class="input-group">
                 <input type="password" placeholder="Пароль" required>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <input type="text" placeholder="Имя" id="name" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" placeholder="Фамилия" id="lastname" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="number" placeholder="Возраст" id="age" min="1" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="tel" placeholder="Телефон" id="number" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="" placeholder="Email" id="email" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="password" placeholder="Пароль" id="password" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="repeatPassword" id="repeatPassword" placeholder="Повторите пароль" id="password" required>
             </div>
             
             <button type="submit" class="btn-login">Зарегистрироваться</button>
@@ -45,5 +74,7 @@
         </form>
     </div>
 
+
+<script src="js/register.js"></script>
 </body>
 </html>
