@@ -4,6 +4,9 @@
     <title>DobroMap - Карта добрых дел</title>
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="css/1.css"/>
+    <style>
+      
+    </style>
   </head>
   <body>
     <!-- Карта -->

@@ -121,3 +121,55 @@
         a {
             text-decoration: none;
         }
+        /* СТИЛИ ДЛЯ ПОЗИЦИОНИРОВАНИЯ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ ЯНДЕКС КАРТ */
+/* Позиционирование поиска (левый нижний угол) */
+.ymaps-2-1-79-searchbox {
+    left: 10px !important;
+    top: auto !important;
+    bottom: 40px !important;
+    right: auto !important;
+    width: 300px !important;
+}
+
+/* Позиционирование кнопки слоев (левый нижний угол, выше поиска) */
+.ymaps-2-1-79-controls__control_toolbar {
+    left: 10px !important;
+    top: auto !important;
+    bottom: 100px !important;
+    right: auto !important;
+}
+
+/* Позиционирование масштаба (правый нижний угол) */
+.ymaps-2-1-79-zoom {
+    left: auto !important;
+    top: auto !important;
+    bottom: 40px !important;
+    right: 10px !important;
+}
+
+/* Скрываем логотип Яндекса */
+.ymaps-2-1-79-map-copyrights-promo,
+.ymaps-2-1-79-copyright__wrap,
+.ymaps-2-1-79-copyrights-pane {
+    display: none !important;
+}
+
+/* Скрываем кнопку "Открыть в Яндекс Картах" */
+.ymaps-2-1-79-open-button {
+    display: none !important;
+}
+
+/* Скрываем кнопку "Создать маршрут" */
+.ymaps-2-1-79-create-route-button {
+    display: none !important;
+}
+
+/* Скрываем кнопку полноэкранного режима */
+.ymaps-2-1-79-fullscreen-button {
+    display: none !important;
+}
+
+/* Убираем лишние отступы у элементов управления */
+.ymaps-2-1-79-controls__control {
+    margin: 0 !important;
+}

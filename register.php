@@ -13,30 +13,6 @@
             <h1>Регистрация</h1>
         </div>
         
-        <form>
-            <div class="input-group">
-                <input type="text" placeholder="Имя" required>
-            </div>
-            
-            <div class="input-group">
-                <input type="text" placeholder="Фамилия" required>
-            </div>
-            
-            <div class="input-group">
-                <input type="number" placeholder="Возраст" min="1" required>
-            </div>
-            
-            <div class="input-group">
-                <input type="tel" placeholder="Телефон" required>
-            </div>
-            
-            <div class="input-group">
-                <input type="email" placeholder="Email" required>
-            </div>
-            
-            <div class="input-group">
-                <input type="password" placeholder="Пароль" required>
-
         <form id="registerForm">
             <div class="input-group">
                 <input type="text" placeholder="Имя" id="name" required>
@@ -69,7 +45,7 @@
             <button type="submit" class="btn-login">Зарегистрироваться</button>
             
             <div class="forgot-password">
-                <a href="#">Уже есть аккаунт? Войти</a>
+                <a href="login.php">Уже есть аккаунт? Войти</a>
             </div>
         </form>
     </div>
