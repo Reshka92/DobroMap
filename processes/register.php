@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../includes/db.php'; // подключаем соединение с БД
 
 header('Content-Type: application/json');
@@ -48,14 +49,16 @@ try {
     if (!mysqli_query($conn, $sql)) {
         throw new Exception("Ошибка при сохранении: " . mysqli_error($conn));
     }
-
+    $_SESSION['isLoggedIn'] = true;
     // Успешный ответ
     echo json_encode([
         "success" => true,
-        "redirect" => "http://martynov.192.ru/index.php"
+        "redirect" => "http://martynov.192.ru/index.php",
+        "isLoggedIn" => true
+        
     ]);
     exit;
-
+    $isLoggedIn = !empty($_SESSION['isLoggedIn']) ? 'true' : 'false';
 } catch (Exception $e) {
     echo json_encode([
         "success" => false,

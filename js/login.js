@@ -33,6 +33,8 @@ form.addEventListener("submit", async function(event) {
             localStorage.setItem('loggedIn', 'true');
             localStorage.setItem('userEmail', email);
             window.location.href = result.redirect;
+            console.log("Успешная регистрация");
+            
         } else {
             alert(result.message || "Неверный email или пароль.");
         }

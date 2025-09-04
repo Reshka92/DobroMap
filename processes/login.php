@@ -35,11 +35,13 @@ try {
     if (!password_verify($password, $user['password_hash'])) {
         throw new Exception("Неверный пароль");
     }
+    $_SESSION['isLoggedIn'] = true;
 
     // Успешный вход
     echo json_encode([
         "success" => true,
-        "redirect" => "../index.php"
+        "redirect" => "../index.php",
+        $isLoggedIn = true
     ]);
     exit;
 

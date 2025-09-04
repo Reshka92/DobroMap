@@ -47,6 +47,8 @@ console.log(adult);
         if(result.success){
             window.location.href = result.redirect;
             localStorage.setItem('registered', true);
+            console.log("Успех");
+            
         }
         else{
             alert(result.message || 'Ошибка регистрации ');
