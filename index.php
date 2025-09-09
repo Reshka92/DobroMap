@@ -19,9 +19,12 @@
     <!-- Контейнер с элементами управления -->
     <div class="controls-container" id="controls-container">
         <button class="btnLogIn" id="btnLogIn"><a id="aBtn" href="register.php" style="color:white" >Регистрация</a></button>
-        <img src="images/User2.png" style="height: 40px;width: 40px;" id="userImg" class="SearchImg" alt="Поиск">
-        <img src="images/Search.png" class="SearchImg" alt="Поиск">
-        <img src="images/Graphic.png" class="SearchImg" alt="График">
+        <a href="index.php"><img src="images/User2.png" style="height: 40px;width: 40px;" id="userImg" class="SearchImg" alt="Поиск"></a>
+        <a href="index.php"><img  class="SearchImg" src="images/Dela.png" id="DelaImg" style="height: 30px;width: 30px;" alt=""></a>
+        <a href="index.php"><img  src="images/Search.png" class="SearchImg" alt="Дела"></a>
+        <a href="index.php"><img src="images/Graphic.png" class="SearchImg" alt="График"></a>
+        <button id="addMarkerBtn" class="btnLogIn">Добавить метку</button>
+
     </div>
     
     <script>

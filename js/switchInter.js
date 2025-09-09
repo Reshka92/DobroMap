@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         
     } else {
-        // Гость    
+        // Гость  
+        
         document.getElementById('userImg').style.display = 'none';
+        document.getElementById('DelaImg').style.display = 'none';
+
     }
 });
