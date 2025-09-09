@@ -1,118 +1,276 @@
- let map;
+let map;
+let placingMode = false;
+let currentPlacemark = null;
 
-        // Функция инициализации карты
-        function initMap() {
-            const center = [44.61665, 33.52536]; 
+// Инициализация карты
+function initMap() {
+    const center = [44.61665, 33.52536];
 
-            map = new ymaps.Map("map", {
-                center: center,
-                zoom: 12
-            });
-            
-            // Удаляем все стандартные элементы управления
-            map.controls.remove('trafficControl');
-            map.controls.remove('fullscreenControl');
-            map.controls.remove('zoomControl');
-            map.controls.remove('rulerControl');
-            map.controls.remove('typeSelector');
-            map.controls.remove('searchControl');
-            map.controls.remove('geolocationControl');
-            
-            // Добавляем нужные элементы управления с кастомным позиционированием
-            // Кнопка слоев (вид со спутника) - левый нижний угол
-            map.controls.add('typeSelector', {
-                position: {
-                    top: 'auto',
-                    bottom: '140px', // Ниже кнопки "Найти место"
-                    left: '10px',
-                    right: 'auto'
-                }
-            });
-            
-            // Масштаб - правый нижний угол (прижимаем)
-            map.controls.add('zoomControl', {
-                position: {
-                    top: 'auto',
-                    bottom: '40px',
-                    left: 'auto',
-                    right: '10px'
-                }
-            });
+    map = new ymaps.Map("map", {
+        center: center,
+        zoom: 12
+    });
 
-            // Скрываем копирайты Яндекса после загрузки карты
-            map.events.add('load', function() {
-                // Ждем немного, чтобы элементы успели отрендериться
-                setTimeout(hideYandexElements, 1000);
-            });
+    // Удаляем стандартные элементы управления
+    map.controls.remove('trafficControl');
+    map.controls.remove('fullscreenControl');
+    map.controls.remove('rulerControl');
+    map.controls.remove('geolocationControl');
+
+    // Добавляем нужные элементы
+    map.controls.add('typeSelector', {
+        position: { bottom: '100px', left: '10px' }
+    });
+
+    map.controls.add('searchControl', {
+        position: { bottom: '40px', left: '10px' },
+        options: { provider: 'yandex#search' }
+    });
+
+    map.controls.add('zoomControl', {
+        position: { bottom: '40px', right: '10px' },
+        options: { size: 'small' }
+    });
+
+    // Скрываем элементы Яндекса
+    map.events.add('boundschange', hideYandexElements);
+    setInterval(hideYandexElements, 2000);
+
+    // Обработка клика по кнопке "Добавить метку"
+    const markerBtn = document.getElementById("addMarkerBtn");
+    if (markerBtn) {
+        markerBtn.addEventListener("click", togglePlacingMode);
+    }
+
+    // Обработка клика по карте
+    map.events.add("click", handleMapClick);
+
+    // Загружаем сохранённые метки
+    loadExistingMarkers();
+}
+
+// Переключение режима размещения метки
+function togglePlacingMode() {
+    placingMode = !placingMode;
+    
+    if (placingMode) {
+        map.container.getElement().style.cursor = "crosshair";
+        document.getElementById("addMarkerBtn").textContent = "Отменить размещение";
+        document.getElementById("addMarkerBtn").style.backgroundColor = "#ff4444";
+    } else {
+        map.container.getElement().style.cursor = "default";
+        document.getElementById("addMarkerBtn").textContent = "Добавить метку";
+        document.getElementById("addMarkerBtn").style.backgroundColor = "";
+        
+        // Удаляем временную метку если она есть
+        if (currentPlacemark) {
+            map.geoObjects.remove(currentPlacemark);
+            currentPlacemark = null;
         }
+    }
+}
 
-        // Функция для скрытия элементов Яндекса
-        function hideYandexElements() {
-            // Скрываем копирайты
-            const copyrights = document.querySelectorAll('.ymaps-2-1-79-copyrights-pane, .ymaps-2-1-79-map-copyrights-promo, .ymaps-2-1-79-copyright__wrap');
-            copyrights.forEach(el => {
-                el.style.display = 'none';
-            });
+// Обработка клика по карте
+function handleMapClick(e) {
+    if (!placingMode) return;
+
+    const coords = e.get("coords");
+    
+    // Удаляем предыдущую временную метку
+    if (currentPlacemark) {
+        map.geoObjects.remove(currentPlacemark);
+    }
+    
+    // Создаем новую метку
+    currentPlacemark = new ymaps.Placemark(coords, {
+        hintContent: 'Новая метка',
+        balloonContent: 'Заполните информацию о метке'
+    }, {
+        preset: 'islands#blueDotIcon'
+    });
+    
+    map.geoObjects.add(currentPlacemark);
+    
+    // Показываем форму
+    showMarkerForm(coords);
+}
+
+// Скрытие элементов Яндекса
+function hideYandexElements() {
+    const selectors = [
+        '.ymaps-2-1-79-copyrights-pane',
+        '.ymaps-2-1-79-map-copyrights-promo',
+        '.ymaps-2-1-79-copyright__wrap',
+        '.ymaps-2-1-79-open-button',
+        '.ymaps-2-1-79-create-route-button',
+        '.ymaps-2-1-79-fullscreen-button'
+    ];
+
+    selectors.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => {
+            el.style.display = 'none';
+        });
+    });
+}
+
+// Показ формы над меткой
+function showMarkerForm(coords) {
+    const formHtml = `
+        <div style="width:250px; padding:10px;">
+            <h3 style="margin-top:0;">Добавить мероприятие</h3>
+            <label>Описание:</label>
+            <textarea id="desc" rows="3" style="width:100%; margin-bottom:10px;" placeholder="Опишите мероприятие"></textarea>
             
-            // Скрываем кнопки "Открыть в Яндекс Картах" и "Создать свою карту"
-            const yandexButtons = document.querySelectorAll('.ymaps-2-1-79-open-button, .ymaps-2-1-79-create-route-button');
-            yandexButtons.forEach(el => {
-                el.style.display = 'none';
-            });
+            <label>Сколько человек нужно:</label>
+            <input type="number" id="people" min="1" style="width:100%; margin-bottom:10px;" placeholder="Количество человек">
             
-            // Скрываем кнопку полноэкранного режима
-            const fullscreenButtons = document.querySelectorAll('.ymaps-2-1-79-fullscreen-button');
-            fullscreenButtons.forEach(el => {
-                el.style.display = 'none';
-            });
+            <label>Дата:</label>
+            <input type="date" id="date" style="width:100%; margin-bottom:10px;">
             
-            // Периодически проверяем, не появились ли элементы снова
-            setInterval(() => {
-                copyrights.forEach(el => {
-                    if (el.style.display !== 'none') el.style.display = 'none';
-                });
-                yandexButtons.forEach(el => {
-                    if (el.style.display !== 'none') el.style.display = 'none';
-                });
-                fullscreenButtons.forEach(el => {
-                    if (el.style.display !== 'none') el.style.display = 'none';
-                });
-            }, 2000);
+            <label>Время:</label>
+            <input type="time" id="time" style="width:100%; margin-bottom:15px;">
+
+            
+            <div style="display:flex; justify-content:space-between;">
+                <button onclick="cancelMarker()" style="background:#ccc; padding:5px 10px; border:none; border-radius:3px;">Отмена</button>
+                <button onclick="submitMarker(${coords[0]}, ${coords[1]})" style="background:#4CAF50; color:white; padding:5px 10px; border:none; border-radius:3px;">Сохранить</button>
+            </div>
+        </div>
+    `;
+
+    // Открываем балун на метке
+    currentPlacemark.properties.set('balloonContent', formHtml);
+    currentPlacemark.balloon.open();
+}
+
+// Отмена добавления метки
+function cancelMarker() {
+    placingMode = false;
+    map.container.getElement().style.cursor = "default";
+    document.getElementById("addMarkerBtn").textContent = "Добавить метку";
+    document.getElementById("addMarkerBtn").style.backgroundColor = "";
+    
+    if (currentPlacemark) {
+        map.geoObjects.remove(currentPlacemark);
+        currentPlacemark = null;
+    }
+}
+
+// Отправка метки на сервер
+// Отправка метки на сервер
+function submitMarker(lat, lon) {
+    const desc = document.getElementById("desc").value;
+    const people = document.getElementById("people").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    if (!desc || !people || !date || !time) {
+        alert("Пожалуйста, заполните все поля.");
+        return;
+    }
+
+    fetch("../processes/save_marker.php", { // Добавил ../
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            lat: lat, 
+            lon: lon, 
+            desc: desc, 
+            people: people, 
+            date: date, 
+            time: time 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Метка успешно сохранена!");
+            cancelMarker();
+            loadExistingMarkers();
+        } else {
+            alert("Ошибка: " + data.message);
         }
+    })
+    .catch(err => {
+        console.error("Ошибка:", err);
+        alert("Ошибка соединения с сервером.");
+    });
+}
 
-        // Функция для поиска местоположения пользователя
-        function findMyLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                        const userLocation = [position.coords.latitude, position.coords.longitude];
-                        
-                        // Центрируем карту на местоположении пользователя
-                        map.setCenter(userLocation, 15);
-                        
-                        // Добавляем метку местоположения пользователя
-                        const userPlacemark = new ymaps.Placemark(userLocation, {
-                            hintContent: 'Ваше местоположение',
-                            balloonContent: 'Вы здесь!'
-                        }, {
-                            preset: 'islands#blueCircleIcon'
-                        });
-                        
-                        map.geoObjects.add(userPlacemark);
-                    },
-                    function(error) {
-                        alert('Не удалось определить ваше местоположение. Проверьте настройки геолокации.');
-                        console.error('Geolocation error:', error);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 300000
-                    }
-                );
-            } else {
-                alert('Ваш браузер не поддерживает геолокацию');
-            }
+// Загрузка всех меток
+function loadExistingMarkers() {
+    // Очищаем существующие метки
+    map.geoObjects.each(geoObject => {
+        if (geoObject !== currentPlacemark) {
+            map.geoObjects.remove(geoObject);
         }
+    });
 
-        // Инициализация карты после загрузки API
-        ymaps.ready(initMap);
+    fetch("../processes/load_markers.php") // Добавил ../
+        .then(res => res.json())
+        .then(data => {
+            console.log("Загружены метки:", data);
+            data.forEach(marker => {
+                const placemark = new ymaps.Placemark([marker.lat, marker.lon], {
+                    balloonContent: `
+                        <div style="padding:10px; max-width:300px;">
+                            <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
+                            <p><strong>Описание:</strong> ${marker.description}</p>
+                            <p><strong>Нужно человек:</strong> ${marker.people_needed}</p>
+                            <p><strong>Дата:</strong> ${marker.event_date}</p>
+                            <p><strong>Время:</strong> ${marker.event_time}</p>
+                            <p><strong>Добавил:</strong> ${marker.user_name}</p>
+                            <p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>
+                        </div>
+                    `,
+                    hintContent: marker.description
+                }, {
+                    preset: 'islands#greenIcon'
+                });
+                
+                map.geoObjects.add(placemark);
+            });
+        })
+        .catch(err => console.error("Ошибка загрузки меток:", err));
+}
+
+// Загрузка всех меток
+// Загрузка всех меток
+// Загрузка всех меток
+function loadExistingMarkers() {
+    // Очищаем существующие метки (кроме временной)
+    map.geoObjects.each(geoObject => {
+        if (geoObject !== currentPlacemark) {
+            map.geoObjects.remove(geoObject);
+        }
+    });
+
+    fetch("processes/load_markers.php")
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(marker => {
+                const placemark = new ymaps.Placemark([marker.lat, marker.lon], {
+                    balloonContent: `
+                        <div style="padding:10px; max-width:300px;">
+                            <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
+                            <p><strong>Описание:</strong> ${marker.description}</p>
+                            <p><strong>Нужно человек:</strong> ${marker.people_needed}</p>
+                            <p><strong>Дата:</strong> ${marker.event_date}</p>
+                            <p><strong>Время:</strong> ${marker.event_time}</p>
+                            <p><strong>Добавил:</strong> ${marker.user_name}</p>
+                            <p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>
+                        </div>
+                    `,
+                    hintContent: marker.description
+                }, {
+                    preset: 'islands#greenIcon'
+                });
+                
+                map.geoObjects.add(placemark);
+            });
+        })
+        .catch(err => console.error("Ошибка загрузки меток:", err));
+}
+
+// Запуск карты
+ymaps.ready(initMap);
