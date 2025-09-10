@@ -157,7 +157,6 @@ function cancelMarker() {
 }
 
 // Отправка метки на сервер
-// Отправка метки на сервер
 function submitMarker(lat, lon) {
     const desc = document.getElementById("desc").value;
     const people = document.getElementById("people").value;
@@ -169,7 +168,8 @@ function submitMarker(lat, lon) {
         return;
     }
 
-    fetch("../processes/save_marker.php", { // Добавил ../
+    // Правильный путь в зависимости от структуры
+    fetch("processes/save_marker.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -181,8 +181,12 @@ function submitMarker(lat, lon) {
             time: time 
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log("Response status:", res.status);
+        return res.json();
+    })
     .then(data => {
+        console.log("Response data:", data);
         if (data.success) {
             alert("Метка успешно сохранена!");
             cancelMarker();
@@ -197,79 +201,77 @@ function submitMarker(lat, lon) {
     });
 }
 
-// Загрузка всех меток
+// Загрузка всех меток - ОДНА ВЕРСИЯ ФУНКЦИИ!
 function loadExistingMarkers() {
-    // Очищаем существующие метки
-    map.geoObjects.each(geoObject => {
-        if (geoObject !== currentPlacemark) {
-            map.geoObjects.remove(geoObject);
-        }
-    });
-
-    fetch("../processes/load_markers.php") // Добавил ../
-        .then(res => res.json())
-        .then(data => {
-            console.log("Загружены метки:", data);
-            data.forEach(marker => {
-                const placemark = new ymaps.Placemark([marker.lat, marker.lon], {
-                    balloonContent: `
-                        <div style="padding:10px; max-width:300px;">
-                            <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
-                            <p><strong>Описание:</strong> ${marker.description}</p>
-                            <p><strong>Нужно человек:</strong> ${marker.people_needed}</p>
-                            <p><strong>Дата:</strong> ${marker.event_date}</p>
-                            <p><strong>Время:</strong> ${marker.event_time}</p>
-                            <p><strong>Добавил:</strong> ${marker.user_name}</p>
-                            <p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>
-                        </div>
-                    `,
-                    hintContent: marker.description
-                }, {
-                    preset: 'islands#greenIcon'
-                });
-                
-                map.geoObjects.add(placemark);
-            });
-        })
-        .catch(err => console.error("Ошибка загрузки меток:", err));
-}
-
-// Загрузка всех меток
-// Загрузка всех меток
-// Загрузка всех меток
-function loadExistingMarkers() {
+    console.log("Загрузка меток...");
+    
     // Очищаем существующие метки (кроме временной)
-    map.geoObjects.each(geoObject => {
+    const geoObjectsToRemove = [];
+    map.geoObjects.each(function(geoObject) {
         if (geoObject !== currentPlacemark) {
-            map.geoObjects.remove(geoObject);
+            geoObjectsToRemove.push(geoObject);
         }
     });
+    
+    geoObjectsToRemove.forEach(function(geoObject) {
+        map.geoObjects.remove(geoObject);
+    });
 
+    // Правильный путь в зависимости от структуры
     fetch("processes/load_markers.php")
-        .then(res => res.json())
+        .then(res => {
+            console.log("Load markers response status:", res.status);
+            if (!res.ok) {
+                throw new Error('Ошибка загрузки меток: ' + res.status);
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log("Метки загружены:", data);
+            
+            if (!data || data.length === 0) {
+                console.log("Нет меток для отображения");
+                return;
+            }
+            
             data.forEach(marker => {
-                const placemark = new ymaps.Placemark([marker.lat, marker.lon], {
-                    balloonContent: `
-                        <div style="padding:10px; max-width:300px;">
-                            <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
-                            <p><strong>Описание:</strong> ${marker.description}</p>
-                            <p><strong>Нужно человек:</strong> ${marker.people_needed}</p>
-                            <p><strong>Дата:</strong> ${marker.event_date}</p>
-                            <p><strong>Время:</strong> ${marker.event_time}</p>
-                            <p><strong>Добавил:</strong> ${marker.user_name}</p>
-                            <p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>
-                        </div>
-                    `,
-                    hintContent: marker.description
-                }, {
-                    preset: 'islands#greenIcon'
-                });
+                // Проверяем, что координаты валидны
+                if (!marker.lat || !marker.lon) {
+                    console.warn("Пропущена метка с невалидными координатами:", marker);
+                    return;
+                }
+                
+                const placemark = new ymaps.Placemark(
+                    [parseFloat(marker.lat), parseFloat(marker.lon)], 
+                    {
+                        balloonContent: `
+                            <div style="padding:10px; max-width:300px;">
+                                <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
+                                <p><strong>Описание:</strong> ${marker.description || 'Нет описания'}</p>
+                                <p><strong>Нужно человек:</strong> ${marker.people_needed || 0}</p>
+                                <p><strong>Дата:</strong> ${marker.event_date || 'Не указана'}</p>
+                                <p><strong>Время:</strong> ${marker.event_time || 'Не указано'}</p>
+                                <p><strong>Добавил:</strong> ${marker.user_name || 'Аноним'}</p>
+                                ${marker.created_at ? `<p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>` : ''}
+                            </div>
+                        `,
+                        hintContent: marker.description || 'Мероприятие'
+                    }, 
+                    {
+                        preset: 'islands#greenIcon',
+                        balloonCloseButton: true,
+                        hideIconOnBalloonOpen: false
+                    }
+                );
                 
                 map.geoObjects.add(placemark);
             });
+            
+            console.log("Метки успешно добавлены на карту");
         })
-        .catch(err => console.error("Ошибка загрузки меток:", err));
+        .catch(err => {
+            console.error("Ошибка загрузки меток:", err);
+        });
 }
 
 // Запуск карты

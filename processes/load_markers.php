@@ -1,10 +1,16 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 header('Content-Type: application/json');
 session_start();
 
-// Подключаем ваши файлы конфигурации
-require_once '../config.php';
-require_once '../db.php';
+// Отладочная информация
+error_log("=== LOAD MARKERS DEBUG ===");
+error_log("Session ID: " . session_id());
+
+// Подключаем ваши файлы конфигурацииs
+require_once '../includes/config.php';
+require_once '../includes/db.php';
 
 try {
     // Проверяем существование таблицы markers
