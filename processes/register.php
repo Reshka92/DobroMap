@@ -1,6 +1,10 @@
 <?php
 session_start();
+<<<<<<< HEAD
 require_once '../includes/db.php';
+=======
+require_once '../includes/db.php'; // подключаем соединение с БД
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
 
 header('Content-Type: application/json');
 
@@ -20,8 +24,14 @@ try {
     $required = ['first_name', 'last_name', 'age', 'phone', 'adult', 'email', 'password'];
     foreach ($required as $field) {
         if (!array_key_exists($field, $data)) {
+<<<<<<< HEAD
             throw new Exception("Поле '$field' обязательно");
         }
+=======
+    throw new Exception("Поле '$field' обязательно");
+}
+
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
     }
 
     // Проверка на существующий email
@@ -48,6 +58,7 @@ try {
     if (!mysqli_query($conn, $sql)) {
         throw new Exception("Ошибка при сохранении: " . mysqli_error($conn));
     }
+<<<<<<< HEAD
     
     // Получаем ID нового пользователя
     $user_id = mysqli_insert_id($conn);
@@ -64,6 +75,18 @@ try {
     ]);
     exit;
 
+=======
+    $_SESSION['isLoggedIn'] = true;
+    // Успешный ответ
+    echo json_encode([
+        "success" => true,
+        "redirect" => "http://martynov.192.ru/index.php",
+        "isLoggedIn" => true
+        
+    ]);
+    exit;
+    $isLoggedIn = !empty($_SESSION['isLoggedIn']) ? 'true' : 'false';
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
 } catch (Exception $e) {
     echo json_encode([
         "success" => false,
@@ -71,4 +94,7 @@ try {
     ]);
     exit;
 }
+<<<<<<< HEAD
 ?>
+=======
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30

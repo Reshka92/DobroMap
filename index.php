@@ -19,7 +19,11 @@
     <!-- Контейнер с элементами управления -->
     <div class="controls-container" id="controls-container">
         <button class="btnLogIn" id="btnLogIn"><a id="aBtn" href="register.php" style="color:white" >Регистрация</a></button>
+<<<<<<< HEAD
         <a href="profile.php"><img src="images/User2.png" style="height: 40px;width: 40px;" id="userImg" class="SearchImg" alt="Поиск"></a>
+=======
+        <a href="index.php"><img src="images/User2.png" style="height: 40px;width: 40px;" id="userImg" class="SearchImg" alt="Поиск"></a>
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
         <a href="index.php"><img  class="SearchImg" src="images/Dela.png" id="DelaImg" style="height: 30px;width: 30px;" alt=""></a>
         <a href="index.php"><img  src="images/Search.png" class="SearchImg" alt="Дела"></a>
         <a href="index.php"><img src="images/Graphic.png" class="SearchImg" alt="График"></a>
@@ -35,11 +39,14 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey=f84ab56f-6f82-4601-a010-1b6d1d69d29e&lang=ru_RU"></script>
     <script src="js/map.js"></script>
     <script src="js/switchInter.js"></script>
+<<<<<<< HEAD
     <script>
    window.userStatus = {
     isLoggedIn: <?php echo $isLoggedIn; ?>,
     userId: <?php echo $_SESSION['user_id'] ?? 0; ?>
 };
 </script>
+=======
+>>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
   </body>
 </html>
