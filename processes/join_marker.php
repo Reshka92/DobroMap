@@ -67,7 +67,7 @@ try {
         $count_result = $count_stmt->get_result();
         $participants_count = $count_result->fetch_assoc()['count'];
         
-        echo json_encode([
+        echo json_encode([  
             'success' => true, 
             'message' => 'Вы присоединились к мероприятию!',
             'participants_count' => $participants_count,
