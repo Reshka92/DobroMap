@@ -193,3 +193,22 @@
     align-items: center;
     gap: 10px;
 }
+.join-button {
+    background: #2196F3;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.join-button:hover {
+    background: #1976D2;
+}
+
+.join-button:disabled {
+    background: #4CAF50;
+    cursor: not-allowed;
+}

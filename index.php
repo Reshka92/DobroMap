@@ -35,5 +35,11 @@
     <script src="https://api-maps.yandex.ru/2.1/?apikey=f84ab56f-6f82-4601-a010-1b6d1d69d29e&lang=ru_RU"></script>
     <script src="js/map.js"></script>
     <script src="js/switchInter.js"></script>
+    <script>
+   window.userStatus = {
+    isLoggedIn: <?php echo $isLoggedIn; ?>,
+    userId: <?php echo $_SESSION['user_id'] ?? 0; ?>
+};
+</script>
   </body>
 </html>
