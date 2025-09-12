@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 session_start();
 
+// Подключаем ваши файлы конфигурации
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
@@ -15,50 +16,40 @@ try {
         exit;
     }
 
-    // Загружаем метки с информацией о пользователе и количеством участников
+    // Загружаем метки с информацией о пользователе
     $query = "
-        SELECT m.*, 
-               u.first_name, 
-               u.last_name,
-               COUNT(mp.id) as participants_count,
-               CASE WHEN mp2.user_id IS NOT NULL THEN 1 ELSE 0 END as current_user_joined
+        SELECT m.*, u.first_name, u.last_name 
         FROM markers m 
         LEFT JOIN users u ON m.user_id = u.id 
-        LEFT JOIN marker_participants mp ON m.id = mp.marker_id
-        LEFT JOIN marker_participants mp2 ON m.id = mp2.marker_id AND mp2.user_id = ?
-        GROUP BY m.id
-        ORDER BY m.created_at DESC
+        WHERE m.event_date >= CURDATE()
+        ORDER BY m.event_date ASC, m.event_time ASC
     ";
     
-    $stmt = $conn->prepare($query);
-    $user_id = $_SESSION['user_id'] ?? 0;
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $conn->query($query);
     
     $markers = [];
-    if ($result) {
+    if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $markers[] = [
                 'id' => $row['id'],
                 'lat' => (float)$row['lat'],
                 'lon' => (float)$row['lon'],
-                'description' => $row['description'],
+                'description' => htmlspecialchars($row['description']),
                 'people_needed' => (int)$row['people_needed'],
-                'participants_count' => (int)$row['participants_count'],
-                'current_user_joined' => (bool)$row['current_user_joined'],
                 'event_date' => $row['event_date'],
                 'event_time' => $row['event_time'],
                 'created_at' => $row['created_at'],
-                'user_name' => $row['first_name'] . ' ' . $row['last_name']
+                'user_name' => htmlspecialchars($row['first_name'] . ' ' . $row['last_name'])
             ];
         }
+        $result->free();
     }
     
     echo json_encode($markers);
     
 } catch (Exception $e) {
-    echo json_encode(['error' => $e->getMessage()]);
+    error_log("Ошибка загрузки меток: " . $e->getMessage());
+    echo json_encode([]);
 }
 
 $conn->close();

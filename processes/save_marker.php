@@ -69,13 +69,16 @@ try {
                 people_needed INT NOT NULL,
                 event_date DATE NOT NULL,
                 event_time TIME NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         ";
         if ($conn->query($createTable)) {
             error_log("Таблица markers создана успешно");
         } else {
             error_log("Ошибка создания таблицы: " . $conn->error);
+            echo json_encode(['success' => false, 'message' => 'Ошибка базы данных: ' . $conn->error]);
+            exit;
         }
     }
 
@@ -96,8 +99,13 @@ try {
     );
     
     if ($stmt->execute()) {
-        error_log("Метка успешно сохранена");
-        echo json_encode(['success' => true, 'message' => 'Метка успешно сохранена']);
+        $marker_id = $stmt->insert_id;
+        error_log("Метка успешно сохранена, ID: $marker_id");
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Метка успешно сохранена',
+            'marker_id' => $marker_id
+        ]);
     } else {
         error_log("Ошибка сохранения: " . $conn->error);
         echo json_encode(['success' => false, 'message' => 'Ошибка сохранения: ' . $conn->error]);

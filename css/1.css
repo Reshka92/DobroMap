@@ -172,7 +172,6 @@
 /* Убираем лишние отступы у элементов управления */
 .ymaps-2-1-79-controls__control {
     margin: 0 !important;
-<<<<<<< HEAD
 }
 #addMarkerBtn {
     background-color: #4CAF50;
@@ -193,25 +192,4 @@
     display: flex;
     align-items: center;
     gap: 10px;
-}
-.join-button {
-    background: #2196F3;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.join-button:hover {
-    background: #1976D2;
-}
-
-.join-button:disabled {
-    background: #4CAF50;
-    cursor: not-allowed;
-=======
->>>>>>> 2c1932761a0afedd9e492c736a340a7f057dbd30
 }
