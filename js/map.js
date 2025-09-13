@@ -41,7 +41,13 @@ function initMap() {
     // Обработка клика по кнопке "Добавить метку"
     const markerBtn = document.getElementById("addMarkerBtn");
     if (markerBtn) {
-        markerBtn.addEventListener("click", togglePlacingMode);
+        markerBtn.addEventListener("click", function() {
+            if (!window.userStatus || !window.userStatus.isLoggedIn) {
+                alert("Для добавления метки необходимо авторизоваться");
+                return;
+            }
+            togglePlacingMode();
+        });
     }
 
     // Обработка клика по карте
@@ -121,7 +127,7 @@ function showMarkerForm(coords) {
         <div style="width:250px; padding:10px;">
             <h3 style="margin-top:0;">Добавить мероприятие</h3>
             <label>Описание:</label>
-            <textarea id="desc" rows="3" style="width:100%; margin-bottom:10px;" placeholder="Опишите мероприятие"></textarea>
+            <input type="text" id="desc" style="width:100%; margin-bottom:10px;" placeholder="Опишите мероприятие">
             
             <label>Сколько человек нужно:</label>
             <input type="number" id="people" min="1" style="width:100%; margin-bottom:10px;" placeholder="Количество человек">
@@ -164,6 +170,8 @@ function submitMarker(lat, lon) {
     const date = document.getElementById("date").value;
     const time = document.getElementById("time").value;
 
+    console.log("Отправляемые данные:", {desc, people, date, time});
+
     if (!desc || !people || !date || !time) {
         alert("Пожалуйста, заполните все поля.");
         return;
@@ -182,9 +190,7 @@ function submitMarker(lat, lon) {
         })
     })
     .then(res => {
-        if (!res.ok) {
-            throw new Error('Ошибка сети: ' + res.status);
-        }
+        console.log("Статус ответа:", res.status);
         return res.json();
     })
     .then(data => {
@@ -192,7 +198,7 @@ function submitMarker(lat, lon) {
         if (data.success) {
             alert("Метка успешно сохранена!");
             cancelMarker();
-            loadExistingMarkers(); // Перезагружаем все метки
+            loadExistingMarkers();
         } else {
             alert("Ошибка: " + data.message);
         }
@@ -231,29 +237,7 @@ function loadExistingMarkers() {
                     return;
                 }
                 
-                const placemark = new ymaps.Placemark(
-                    [parseFloat(marker.lat), parseFloat(marker.lon)], 
-                    {
-                        balloonContent: `
-                            <div style="padding:10px; max-width:300px;">
-                                <h3 style="margin-top:0; color:#2c3e50;">Мероприятие</h3>
-                                <p><strong>Описание:</strong> ${marker.description || 'Нет описания'}</p>
-                                <p><strong>Нужно человек:</strong> ${marker.people_needed || 0}</p>
-                                <p><strong>Дата:</strong> ${marker.event_date || 'Не указана'}</p>
-                                <p><strong>Время:</strong> ${marker.event_time || 'Не указано'}</p>
-                                <p><strong>Добавил:</strong> ${marker.user_name || 'Аноним'}</p>
-                                ${marker.created_at ? `<p><small>Создано: ${new Date(marker.created_at).toLocaleString()}</small></p>` : ''}
-                            </div>
-                        `,
-                        hintContent: marker.description || 'Мероприятие'
-                    }, 
-                    {
-                        preset: 'islands#greenIcon',
-                        balloonCloseButton: true,
-                        hideIconOnBalloonOpen: false
-                    }
-                );
-                
+                const placemark = createMarker(marker);
                 map.geoObjects.add(placemark);
                 existingMarkers.push(placemark);
             });
@@ -263,6 +247,87 @@ function loadExistingMarkers() {
         .catch(err => {
             console.error("Ошибка загрузки меток:", err);
         });
+}
+
+// Создание метки с улучшенным отображением
+function createMarker(marker) {
+    console.log("Создание метки:", marker); // Отладочная информация
+    
+    const progress = Math.min(100, ((marker.people_joined || 0) / (marker.people_needed || 1)) * 100);
+    const progressColor = progress >= 100 ? '#4CAF50' : '#ff6b6b';
+    
+    const placemark = new ymaps.Placemark(
+        [parseFloat(marker.lat), parseFloat(marker.lon)], 
+        {
+            balloonContent: `
+                <div style="padding:15px; max-width:350px;">
+                    <h3 style="margin-top:0; color:#2c3e50;">${marker.description || 'Мероприятие'}</h3>
+                    <p><strong>Организатор:</strong> ${marker.user_name || 'Аноним'}</p>
+                    <p><strong>Нужно волонтеров:</strong> ${marker.people_needed || 0}</p>
+                    <p><strong>Уже присоединилось:</strong> ${marker.people_joined || 0}</p>
+                    <p><strong>Дата:</strong> ${marker.event_date || 'Не указана'}</p>
+                    <p><strong>Время:</strong> ${marker.event_time || 'Не указано'}</p>
+                    
+                    <div style="margin:10px 0; background:#eee; border-radius:5px;">
+                        <div style="height:20px; background:${progressColor}; border-radius:5px; width:${progress}%"></div>
+                    </div>
+                    
+                    ${marker.can_join ? `
+                        <button onclick="joinEvent(${marker.id})" 
+                                style="background:#4CAF50; color:white; padding:10px; border:none; border-radius:5px; width:100%; cursor:pointer;">
+                            Присоединиться
+                        </button>
+                    ` : marker.user_joined ? `
+                        <button style="background:#2196F3; color:white; padding:10px; border:none; border-radius:5px; width:100%;">
+                            Вы участвуете ✓
+                        </button>
+                    ` : `
+                        <button style="background:#ccc; padding:10px; border:none; border-radius:5px; width:100%;">
+                            ${progress >= 100 ? 'Мест нет' : 'Ошибка'}
+                        </button>
+                    `}
+                </div>
+            `,
+            hintContent: `${marker.description || 'Мероприятие'} (${marker.people_joined || 0}/${marker.people_needed || 0})`
+        }, 
+        {
+            preset: (marker.people_joined || 0) >= (marker.people_needed || 1) ? 'islands#greenIcon' : 
+                   (marker.people_joined || 0) > 0 ? 'islands#blueIcon' : 'islands#redIcon',
+            balloonCloseButton: true,
+            hideIconOnBalloonOpen: false
+        }
+    );
+    
+    return placemark;
+}
+
+// Функция присоединения к событию
+function joinEvent(eventId) {
+    if (!window.userStatus || !window.userStatus.isLoggedIn) {
+        alert("Для присоединения к мероприятию необходимо авторизоваться");
+        return;
+    }
+    
+    if (!confirm('Вы уверены, что хотите присоединиться к этому мероприятию?')) return;
+    
+    fetch("../processes/join_event.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_id: eventId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Вы успешно присоединились к мероприятию!");
+            loadExistingMarkers(); // Обновляем метки
+        } else {
+            alert("Ошибка: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Ошибка:", err);
+        alert("Ошибка соединения");
+    });
 }
 
 // Очистка существующих меток

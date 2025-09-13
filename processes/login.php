@@ -4,50 +4,50 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 session_start();
 
-// Подключаем ваши файлы конфигурации
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
+$data = json_decode(file_get_contents('php://input'), true);
+$email = $data['email'] ?? '';
+$password = $data['password'] ?? '';
+
+if (empty($email) || empty($password)) {
+    echo json_encode(['success' => false, 'message' => 'Email и пароль обязательны']);
+    exit;
+}
+
 try {
-    // Проверяем существование таблицы markers
-    $checkTable = $conn->query("SHOW TABLES LIKE 'markers'");
-    if ($checkTable->num_rows == 0) {
-        echo json_encode([]);
+    // Исправлено: используем password_hash вместо password
+    $stmt = $conn->prepare("SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Пользователь с таким email не найден']);
         exit;
     }
+    
+    $user = $result->fetch_assoc();
+    
+    // Исправлено: проверяем password_hash вместо password
+    if (password_verify($password, $user['password_hash'])) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+        $_SESSION['isLoggedIn'] = true;
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Вход выполнен успешно',
+            'redirect' => '../index.php'
+        ]);
 
-    // Загружаем метки с информацией о пользователе
-    $query = "
-        SELECT m.*, u.first_name, u.last_name 
-        FROM markers m 
-        LEFT JOIN users u ON m.user_id = u.id 
-        ORDER BY m.created_at DESC
-    ";
-    
-    $result = $conn->query($query);
-    
-    $markers = [];
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $markers[] = [
-                'id' => $row['id'],
-                'lat' => (float)$row['lat'],
-                'lon' => (float)$row['lon'],
-                'description' => $row['description'],
-                'people_needed' => (int)$row['people_needed'],
-                'event_date' => $row['event_date'],
-                'event_time' => $row['event_time'],
-                'created_at' => $row['created_at'],
-                'user_name' => $row['first_name'] . ' ' . $row['last_name']
-            ];
-        }
-        $result->free();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Неверный пароль']);
     }
     
-    echo json_encode($markers);
-    
 } catch (Exception $e) {
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Ошибка сервера: ' . $e->getMessage()]);
 }
 
 $conn->close();

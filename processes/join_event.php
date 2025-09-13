@@ -20,13 +20,12 @@ if (!$event_id) {
 }
 
 try {
-    // Проверяем, есть ли еще места
+    // Проверяем существование мероприятия
     $check = $conn->prepare("
-        SELECT people_needed, 
-               (SELECT COUNT(*) FROM event_participants WHERE event_id = ?) as current_count
-        FROM markers WHERE id = ?
+        SELECT people_needed 
+        FROM markers WHERE id = ? AND (status = 'active' OR status IS NULL)
     ");
-    $check->bind_param("ii", $event_id, $event_id);
+    $check->bind_param("i", $event_id);
     $check->execute();
     $result = $check->get_result();
     
@@ -37,7 +36,17 @@ try {
     
     $event = $result->fetch_assoc();
     
-    if ($event['current_count'] >= $event['people_needed']) {
+    // Проверяем количество участников
+    $countCheck = $conn->prepare("
+        SELECT COUNT(*) as current_count 
+        FROM event_participants WHERE event_id = ?
+    ");
+    $countCheck->bind_param("i", $event_id);
+    $countCheck->execute();
+    $countResult = $countCheck->get_result();
+    $countData = $countResult->fetch_assoc();
+    
+    if ($countData['current_count'] >= $event['people_needed']) {
         echo json_encode(['success' => false, 'message' => 'Все места заняты']);
         exit;
     }
