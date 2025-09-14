@@ -20,6 +20,22 @@ if (!$event_id) {
 }
 
 try {
+    // Проверяем, не является ли пользователь создателем мероприятия
+    $checkCreator = $conn->prepare("
+        SELECT user_id FROM markers WHERE id = ?
+    ");
+    $checkCreator->bind_param("i", $event_id);
+    $checkCreator->execute();
+    $creatorResult = $checkCreator->get_result();
+    
+    if ($creatorResult->num_rows > 0) {
+        $creatorData = $creatorResult->fetch_assoc();
+        if ($creatorData['user_id'] == $user_id) {
+            echo json_encode(['success' => false, 'message' => 'Вы не можете присоединиться к своему мероприятию']);
+            exit;
+        }
+    }
+    
     // Проверяем существование мероприятия
     $check = $conn->prepare("
         SELECT people_needed 
