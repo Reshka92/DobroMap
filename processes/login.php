@@ -3,13 +3,16 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
 
+// Добавляем session_start() в самое начало файла
+session_start();
+
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 $email = $data['email'] ?? '';
 $password = $data['password'] ?? '';
-$remember = $data['remember'] ?? false; // Добавляем опцию "Запомнить меня"
+$remember = $data['remember'] ?? false;
 
 if (empty($email) || empty($password)) {
     echo json_encode(['success' => false, 'message' => 'Email и пароль обязательны']);
@@ -30,10 +33,11 @@ try {
     $user = $result->fetch_assoc();
     
     if (password_verify($password, $user['password_hash'])) {
+        // Устанавливаем все данные сессии
+        $_SESSION['isLoggedIn'] = true;
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-        $_SESSION['isLoggedIn'] = true;
         
         // Если пользователь выбрал "Запомнить меня"
         if ($remember) {

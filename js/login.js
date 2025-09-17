@@ -27,28 +27,54 @@ form.addEventListener("submit", async function(event) {
             body: JSON.stringify({ email, password, remember })
         });
 
-        const text = await response.text();
-
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error("Сервер вернул не JSON:", text);
-            alert("Ошибка соединения с сервером.");
-            return;
-        }
+        const result = await response.json();
 
         if (result.success) {
+            // Сохраняем информацию о входе
             localStorage.setItem('loggedIn', 'true');
             localStorage.setItem('userEmail', email);
-            window.location.href = result.redirect;
-            console.log("Успешный вход");
+            
+            // Показываем уведомление об успешном входе
+            showNotification('Вход выполнен успешно!', 'success');
+            
+            // Перенаправляем после небольшой задержки
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1000);
             
         } else {
-            alert(result.message || "Неверный email или пароль.");
+            showNotification(result.message || "Неверный email или пароль.", 'error');
         }
     } catch (error) {
         console.error("Ошибка входа:", error);
-        alert("Ошибка соединения с сервером.");
+        showNotification("Ошибка соединения с сервером.", 'error');
     }
 });
+
+// Функция для показа уведомлений
+function showNotification(message, type) {
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.padding = '10px 20px';
+    notification.style.borderRadius = '5px';
+    notification.style.color = 'white';
+    notification.style.zIndex = '10000';
+    
+    if (type === 'success') {
+        notification.style.background = '#4CAF50';
+    } else {
+        notification.style.background = '#F44336';
+    }
+    
+    // Добавляем уведомление на страницу
+    document.body.appendChild(notification);
+    
+    // Удаляем уведомление через 3 секунды
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}

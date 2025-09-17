@@ -1,5 +1,6 @@
 <?php
-require_once 'db.php';
+session_start();
+require_once '../includes/db.php';
 
 // Удаляем токен из базы, если есть кука remember_token
 if (isset($_COOKIE['remember_token'])) {
@@ -9,7 +10,7 @@ if (isset($_COOKIE['remember_token'])) {
     $stmt->execute();
     
     // Удаляем куку remember_token
-    setcookie('remember_token', '', time() - 3600, COOKIE_PATH, COOKIE_DOMAIN, COOKIE_SECURE, COOKIE_HTTPONLY);
+    setcookie('remember_token', '', time() - 3600, '/', '', true, true);
 }
 
 // Очищаем сессию
@@ -33,6 +34,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Перенаправляем на главную
-header('Location: index.php');
+header('Location: ../index.php');
 exit;
 ?>

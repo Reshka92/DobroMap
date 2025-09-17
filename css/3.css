@@ -417,4 +417,17 @@
             .tasks-container {
                 grid-template-columns: 1fr;
             }
+<<<<<<< HEAD
         }
+=======
+        }
+        .nav-menu a[href="logout.php"] {
+    color: #ff4444 !important;
+    font-weight: bold;
+}
+
+.nav-menu a[href="logout.php"]:hover {
+    background-color: #ff4444 !important;
+    color: white !important;
+}
+>>>>>>> 40c4764 (+- сделал личный кабинет)

@@ -60,7 +60,7 @@ try {
     // Успешный ответ
     echo json_encode([
         "success" => true,
-        "redirect" => "http://martynov.192.ru/index.php"
+        "redirect" => "../index.php"
     ]);
     exit;
 
