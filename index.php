@@ -90,38 +90,40 @@ if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn']) {
             <button class="btnLogIn" id="btnLogIn"><a id="aBtn" href="register.php" style="color:white">Регистрация</a></button>
         <?php else: ?>
             <a href="profile.php"><img src="images/User2.png" style="height: 40px;width: 40px;" id="userImg" class="SearchImg" alt="Профиль"></a>
-            <a href="index.php"><img class="SearchImg" src="images/Dela.png" id="DelaImg" style="height: 30px;width: 30px;" alt="Дела"></a>
+            <a href="completed_tasks.php"><img class="SearchImg" src="images/Dela.png" id="DelaImg" style="height: 30px;width: 30px;" alt="Дела"></a>
         <?php endif; ?>
         <a href="index.php"><img src="images/Search.png" class="SearchImg" alt="Поиск"></a>
-        <a href="index.php"><img src="images/Graphic.png" class="SearchImg" alt="График"></a>
+        <a href="leaders.php"><img src="images/Graphic.png" class="SearchImg" alt="График"></a>
         <button id="addMarkerBtn" class="btnLogIn">Добавить метку</button>
     </div>
     
     <script>
-       window.userStatus = {
+    window.userStatus = {
         isLoggedIn: <?php echo $isLoggedIn ? 'true' : 'false'; ?>,
         userId: <?php echo $userId; ?>,
         userName: '<?php echo addslashes($userName); ?>'
-       };
-       
-       // Функция для проверки авторизации при загрузке
-       function checkAuthStatus() {
-           if (window.userStatus.isLoggedIn) {
-               // Пользователь авторизован
-               document.getElementById('btnLogIn').style.display = 'none';
-               document.getElementById('userImg').style.display = 'block';
-               document.getElementById('DelaImg').style.display = 'block';
-           } else {
-               // Пользователь не авторизован
-               document.getElementById('btnLogIn').style.display = 'block';
-               document.getElementById('userImg').style.display = 'none';
-               document.getElementById('DelaImg').style.display = 'none';
-           }
-       }
-       
-       // Проверяем статус при загрузке
-       document.addEventListener('DOMContentLoaded', checkAuthStatus);
-    </script>
+    };
+
+    function checkAuthStatus() {
+        const btnLogIn = document.getElementById('btnLogIn');
+        const userImg = document.getElementById('userImg');
+        const DelaImg = document.getElementById('DelaImg');
+
+        if (!btnLogIn || !userImg || !DelaImg) return;
+
+        if (window.userStatus.isLoggedIn) {
+            btnLogIn.style.display = 'none';
+            userImg.style.display = 'block';
+            DelaImg.style.display = 'block';
+        } else {
+            btnLogIn.style.display = 'block';
+            userImg.style.display = 'none';
+            DelaImg.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', checkAuthStatus);
+</script>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=f84ab56f-6f82-4601-a010-1b6d1d69d29e&lang=ru_RU"></script>
     <script src="js/map.js"></script>
     <script src="js/markerManager.js"></script>

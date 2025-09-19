@@ -61,6 +61,16 @@ try {
     $stmt->bind_param("i", $event_id);
     
     if ($stmt->execute()) {
+        // ОБНОВЛЯЕМ КОЛИЧЕСТВО УЧАСТНИКОВ ПОСЛЕ ЗАВЕРШЕНИЯ МЕРОПРИЯТИЯ
+        $update_participants = $conn->prepare("
+            UPDATE markers SET people_joined = (
+                SELECT COUNT(*) FROM event_participants WHERE event_id = ?
+            ) WHERE id = ?
+        ");
+        $update_participants->bind_param("ii", $event_id, $event_id);
+        $update_participants->execute();
+        $update_participants->close();
+        
         error_log("Мероприятие успешно завершено: event_id=$event_id");
         echo json_encode(['success' => true, 'message' => 'Мероприятие завершено']);
     } else {
@@ -68,8 +78,12 @@ try {
         echo json_encode(['success' => false, 'message' => 'Ошибка базы данных: ' . $conn->error]);
     }
     
+    $stmt->close();
+    
 } catch (Exception $e) {
     error_log("Ошибка сервера при завершении события: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Ошибка сервера: ' . $e->getMessage()]);
 }
+
+$conn->close();
 ?>

@@ -50,7 +50,7 @@ if (session_status() === PHP_SESSION_NONE && isset($_COOKIE['remember_token'])) 
             $deleteStmt->execute();
             
             // Удаляем cookie
-            setcookie('remember_token', '', time() - 3600, COOKIE_PATH, COOKIE_DOMAIN, COOKIE_SECURE, COOKIE_HTTPONLY);
+            setcookie('remember_token', '', time() - 3600000, COOKIE_PATH, COOKIE_DOMAIN, COOKIE_SECURE, COOKIE_HTTPONLY);
         }
     }
 }

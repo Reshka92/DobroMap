@@ -1,13 +1,18 @@
+// switchInter.js
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.userStatus && window.userStatus.isLoggedIn === true) {
-        // Скрываем гостевое меню, показываем меню пользователя
-        document.getElementById('btnLogIn').style.display = 'none';
-        document.getElementById('btnLogOut').style.display = 'block';
+    const btnLogIn = document.getElementById('btnLogIn');
+    const btnLogOut = document.getElementById('btnLogOut'); // Этот элемент отсутствует на index.php
+    const userImg = document.getElementById('userImg');
+    const DelaImg = document.getElementById('DelaImg');
+    const userAvatar = document.querySelector('.user-avatar'); // Этот элемент также отсутствует
+
+    if (!window.userStatus) return;
+
+    if (window.userStatus.isLoggedIn === true) {
+        if (btnLogIn) btnLogIn.style.display = 'none';
+        if (btnLogOut) btnLogOut.style.display = 'block'; // Ошибка здесь - btnLogOut = null
         
-        // Обновляем информацию о пользователе
-        const userAvatar = document.querySelector('.user-avatar');
         if (userAvatar && window.userStatus.userName) {
-            // Генерируем инициалы из имени
             const initials = window.userStatus.userName.split(' ')
                 .map(name => name[0])
                 .join('')
@@ -15,9 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
             userAvatar.textContent = initials;
         }
     } else {
-        // Гость  
-        document.getElementById('userImg').style.display = 'none';
-        document.getElementById('DelaImg').style.display = 'none';
-        document.getElementById('btnLogOut').style.display = 'none';
+        if (userImg) userImg.style.display = 'none';
+        if (DelaImg) DelaImg.style.display = 'none';
+        if (btnLogOut) btnLogOut.style.display = 'none'; // И здесь
     }
 });
