@@ -331,7 +331,7 @@ error_log("Найдено выполненных задач для отобра�
             margin: 20px 0;
             font-family: monospace;
             font-size: 12px;
-            color: #6c757d;
+            color: while;
         }
         .sidebar-nav .nav-item .fa-chart-bar {
     color: white !important;
@@ -350,12 +350,14 @@ error_log("Найдено выполненных задач для отобра�
     <div class="app-container">
         <!-- Боковая панель -->
         <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="app-logo">
-                    <i class="fas fa-tasks"></i>
-                    <span>TaskManager</span>
-                </div>
-            </div>
+    <div class="sidebar-header">
+        <button class="mobile-nav-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="app-logo">
+            <i class="fas fa-tasks"></i>
+            <span>TaskManager</span>
+        </div>
             
             <div class="user-profile">
                 <div class="user-avatar large">
@@ -377,11 +379,11 @@ error_log("Найдено выполненных задач для отобра�
                     <span>Выполненные дела</span>
                 </a>
                 <a href="leaders.php" class="nav-item">
-    <i class="fas fa-chart-bar"></i> 
+                 <i class="fas fa-chart-bar"></i> 
                 <span>Лидеры</span>
                  </a>
-                <a href="index.php" class="nav-item">
-                <i class="fas fa-map"></i>
+                <a href="index.php" class="nav-item" >
+                <i class="fas fa-map" ></i>
                 <span>На карту</span>
                  </a>
                  

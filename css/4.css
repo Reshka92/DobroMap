@@ -607,7 +607,7 @@ body {
 }
 
 .sidebar-nav .nav-item .fa-map {
-    color: #6c757d; /* Цвет неактивной иконки */
+    color: #ffffff; /* Цвет неактивной иконки */
     transition: color 0.3s ease;
 }
 
@@ -616,14 +616,206 @@ body {
 }
 
 /* Стили для мобильной версии */
+/* Добавляем в конец файла 4.css */
+
+/* Мобильная адаптация */
 @media (max-width: 768px) {
-    .sidebar-nav .nav-item .fa-map {
-        font-size: 1.2rem;
+    .app-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 10px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    .sidebar-header {
+        padding: 0;
+        border-bottom: none;
+        margin-right: 15px;
+    }
+
+    .sidebar .user-profile {
+        display: none;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        padding: 0;
+        flex-grow: 0;
+    }
+
+    .nav-item {
+        padding: 10px;
+    }
+
+    .nav-item span {
+        display: none;
+    }
+
+    .main-content {
+        margin-top: 60px;
+    }
+
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .content-body {
+        padding: 15px;
+    }
+
+    .tasks-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Специфичные стили для completed_tasks.php */
+    .media-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .media-item {
+        height: 100px;
+    }
+
+    /* Специфичные стили для leaders.php */
+    .leader-item {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .leader-position {
+        margin-bottom: 10px;
+    }
+
+    .leader-avatar {
+        margin: 10px 0;
+    }
+
+    .leader-stats {
+        flex-direction: column;
+        gap: 5px;
     }
 }
-.no-contacts {
-    text-align: center;
-    padding: 20px;
-    color: var(--gray);
+
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 8px;
+    }
+
+    .app-logo {
+        font-size: 16px;
+    }
+
+    .app-logo i {
+        font-size: 20px;
+    }
+
+    .nav-item {
+        padding: 8px;
+    }
+
+    .content-header h1 {
+        font-size: 20px;
+    }
+
+    .task-card {
+        padding: 15px;
+    }
+
+    .task-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .task-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-primary, .btn-secondary, .btn-success {
+        width: 100%;
+        justify-content: center;
+    }
 }
+
+/* Дополнительные стили для мобильной навигации */
+.mobile-nav-toggle {
+    display: none;
 }
+
+@media (max-width: 768px) {
+    .mobile-nav-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        margin-right: 15px;
+    }
+
+    .sidebar-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        flex-direction: column;
+        display: none;
+        padding: 10px 0;
+    }
+
+    .sidebar-nav.active {
+        display: flex;
+    }
+
+    .nav-item {
+        width: 100%;
+        justify-content: center;
+        padding: 15px;
+    }
+
+    .nav-item span {
+        display: inline;
+        margin-left: 10px;
+    }
+}
+
+/* Улучшенные стили для иконок в сайдбаре */
+.sidebar-nav .nav-item.active .fa-list-check,
+.sidebar-nav .nav-item.active .fa-check-circle,
+.sidebar-nav .nav-item.active .fa-chart-bar,
+.sidebar-nav .nav-item.active .fa-map {
+    color: white !important;
+}
+
+.sidebar-nav .nav-item .fa-list-check,
+.sidebar-nav .nav-item .fa-check-circle,
+.sidebar-nav .nav-item .fa-chart-bar,
+.sidebar-nav .nav-item .fa-map {
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s ease;
+}
+
+.sidebar-nav .nav-item:hover .fa-list-check,
+.sidebar-nav .nav-item:hover .fa-check-circle,
+.sidebar-nav .nav-item:hover .fa-chart-bar,
+.sidebar-nav .nav-item:hover .fa-map {
+    color: white !important;
+}}
