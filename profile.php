@@ -199,25 +199,27 @@ try {
                                 </div>
                                 
                                 <div class="task-card-footer">
-                                    <button class="btn-icon" data-event-id="<?php echo $task['id']; ?>" title="Контакты">
-                                        <i class="fas fa-users"></i>
-                                    </button>
-                                    
-                                    <?php if ($task['is_event_time']): ?>
-                                        <button class="btn-primary" data-event-id="<?php echo $task['id']; ?>">
-                                            <i class="fas fa-upload"></i> Загрузить отчет
+                                    <div class="button-group">
+                                        <button class="btn-icon" data-event-id="<?php echo $task['id']; ?>" title="Контакты">
+                                            <i class="fas fa-users"></i>
                                         </button>
-                                        <?php if ($task['user_id'] == $user_id): ?>
-                                            <button class="btn-success" data-event-id="<?php echo $task['id']; ?>">
-                                                <i class="fas fa-check"></i> Завершить
+                                        
+                                        <?php if ($task['is_event_time']): ?>
+                                            <button class="btn-primary" data-event-id="<?php echo $task['id']; ?>">
+                                                <i class="fas fa-upload"></i> Загрузить отчет
                                             </button>
+                                            <?php if ($task['user_id'] == $user_id): ?>
+                                                <button class="btn-success" data-event-id="<?php echo $task['id']; ?>">
+                                                    <i class="fas fa-check"></i> Завершить
+                                                </button>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <div class="time-info">
+                                                <i class="fas fa-hourglass-start"></i>
+                                                <span>Доступно после <?php echo date('d.m.Y H:i', $task['event_timestamp']); ?></span>
+                                            </div>
                                         <?php endif; ?>
-                                    <?php else: ?>
-                                        <div class="time-info">
-                                            <i class="fas fa-hourglass-start"></i>
-                                            <span>Доступно после <?php echo date('d.m.Y H:i', $task['event_timestamp']); ?></span>
-                                        </div>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
                                 
                                 <?php if ($task['is_event_time']): ?>
@@ -251,7 +253,7 @@ try {
                         <i class="fas fa-inbox"></i>
                         <h3>Нет текущих задач</h3>
                         <p>У вас нет активных задач. Создайте новую или присоединитесь к существующей.</p>
-                        <a href="map.php" class="btn-primary">Посмотреть на карте</a>
+                        <a href="index.php" class="btn-primary">Посмотреть на карте</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -259,244 +261,259 @@ try {
     </div>
     
     <!-- Модальное окно контактов -->
-    <div class="modal-overlay" id="contactModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Контакты участников</h2>
-                <button class="modal-close">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <ul class="contacts-list" id="contactList">
-                    <!-- Контакты будут загружены через AJAX -->
-                </ul>
-            </div>
-            
-            <div class="modal-footer">
-                <button class="btn-secondary modal-close">Закрыть</button>
-            </div>
+<div class="modal-overlay" id="contactModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Контакты участников</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <ul class="contacts-list" id="contactList">
+                <!-- Контакты будут загружены сюда -->
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary modal-close">Закрыть</button>
         </div>
     </div>
+</div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Открытие/закрытие модального окна контактов
-        const contactButtons = document.querySelectorAll('.btn-icon[data-event-id]');
-        const contactModal = document.getElementById('contactModal');
-        const closeModalButtons = document.querySelectorAll('.modal-close');
-        
-        contactButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const eventId = button.getAttribute('data-event-id');
-                loadContacts(eventId);
-                contactModal.classList.add('active');
-            });
+   <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Открытие/закрытие модального окна контактов
+    const contactModal = document.getElementById('contactModal');
+    const closeModalButtons = document.querySelectorAll('.modal-close');
+    
+    // Обработчики для кнопок контактов
+    document.querySelectorAll('.btn-icon[title="Контакты"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const eventId = this.getAttribute('data-event-id');
+            loadContacts(eventId);
+            contactModal.classList.add('active');
         });
-        
-        closeModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                contactModal.classList.remove('active');
-            });
+    });
+    
+    // Закрытие модального окна
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            contactModal.classList.remove('active');
         });
-        
-        // Открытие/закрытие формы загрузки медиа
-        const uploadButtons = document.querySelectorAll('.btn-primary[data-event-id]');
-        
-        uploadButtons.forEach(button => {
-            if (button.textContent.includes('Загрузить отчет')) {
-                button.addEventListener('click', () => {
-                    const eventId = button.getAttribute('data-event-id');
-                    const mediaUpload = document.getElementById(`mediaUpload-${eventId}`);
-                    mediaUpload.classList.toggle('active');
-                    
-                    if (mediaUpload.classList.contains('active')) {
-                        button.innerHTML = '<i class="fas fa-times"></i> Скрыть форму';
-                    } else {
-                        button.innerHTML = '<i class="fas fa-upload"></i> Загрузить отчет';
-                    }
-                });
-            }
-        });
-        
-        // Обработка завершения дела
-        const completeButtons = document.querySelectorAll('.btn-success');
-        
-        completeButtons.forEach(button => {
+    });
+    
+    // Закрытие по клику вне модального окна
+    contactModal.addEventListener('click', (e) => {
+        if (e.target === contactModal) {
+            contactModal.classList.remove('active');
+        }
+    });
+    
+    // Открытие/закрытие формы загрузки медиа
+    document.querySelectorAll('.btn-primary').forEach(button => {
+        if (button.textContent.includes('Загрузить отчет')) {
             button.addEventListener('click', function() {
                 const eventId = this.getAttribute('data-event-id');
-                if (confirm('Вы уверены, что хотите завершить это дело? После завершения вы больше не сможете добавлять материалы.')) {
-                    completeEvent(eventId);
-                }
-            });
-        });
-        
-        // Предпросмотр выбранных медиафайлов
-        const mediaInputs = document.querySelectorAll('.file-input');
-        
-        mediaInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                const eventId = this.id.split('-').pop();
-                const previewContainer = document.getElementById(`mediaPreview-${eventId}`);
-                previewContainer.innerHTML = '';
+                const mediaUpload = document.getElementById(`mediaUpload-${eventId}`);
+                const isActive = mediaUpload.classList.contains('active');
                 
-                if (this.files) {
-                    Array.from(this.files).forEach(file => {
-                        const reader = new FileReader();
-                        const mediaItem = document.createElement('div');
-                        mediaItem.classList.add('media-item');
-                        
-                        reader.onload = function(e) {
-                            if (file.type.startsWith('image/')) {
-                                const img = document.createElement('img');
-                                img.src = e.target.result;
-                                mediaItem.appendChild(img);
-                            } else if (file.type.startsWith('video/')) {
-                                const video = document.createElement('video');
-                                video.src = e.target.result;
-                                video.controls = true;
-                                mediaItem.appendChild(video);
-                            }
-                            
-                            previewContainer.appendChild(mediaItem);
+                // Закрываем все другие открытые формы
+                document.querySelectorAll('.media-upload-section.active').forEach(section => {
+                    if (section.id !== `mediaUpload-${eventId}`) {
+                        section.classList.remove('active');
+                        const correspondingButton = document.querySelector(`.btn-primary[data-event-id="${section.id.split('-')[1]}"]`);
+                        if (correspondingButton) {
+                            correspondingButton.innerHTML = '<i class="fas fa-upload"></i> Загрузить отчет';
                         }
-                        
-                        reader.readAsDataURL(file);
-                    });
+                    }
+                });
+                
+                mediaUpload.classList.toggle('active');
+                
+                if (!isActive) {
+                    this.innerHTML = '<i class="fas fa-times"></i> Скрыть форму';
+                } else {
+                    this.innerHTML = '<i class="fas fa-upload"></i> Загрузить отчет';
                 }
             });
+        }
+    });
+    
+    // Обработка завершения дела
+    document.querySelectorAll('.btn-success').forEach(button => {
+        button.addEventListener('click', function() {
+            const eventId = this.getAttribute('data-event-id');
+            if (confirm('Вы уверены, что хотите завершить это дело? После завершения вы больше не сможете добавлять материалы.')) {
+                completeEvent(eventId);
+            }
         });
-        
-        // Отправка медиафайлов
-        const submitButtons = document.querySelectorAll('.btn-primary.full-width');
-        
-        submitButtons.forEach(button => {
-            if (button.textContent.includes('Отправить отчет')) {
-                button.addEventListener('click', function() {
-                    const eventId = this.getAttribute('data-event-id');
-                    uploadMedia(eventId);
+    });
+    
+    // Предпросмотр выбранных медиафайлов
+    document.querySelectorAll('.file-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const eventId = this.id.split('-').pop();
+            const previewContainer = document.getElementById(`mediaPreview-${eventId}`);
+            previewContainer.innerHTML = '';
+            
+            if (this.files && this.files.length > 0) {
+                Array.from(this.files).forEach(file => {
+                    const reader = new FileReader();
+                    const mediaItem = document.createElement('div');
+                    mediaItem.classList.add('media-item');
+                    
+                    reader.onload = function(e) {
+                        if (file.type.startsWith('image/')) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.alt = 'Предпросмотр';
+                            mediaItem.appendChild(img);
+                        } else if (file.type.startsWith('video/')) {
+                            const video = document.createElement('video');
+                            video.src = e.target.result;
+                            video.controls = true;
+                            mediaItem.appendChild(video);
+                        }
+                        previewContainer.appendChild(mediaItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
                 });
             }
         });
     });
     
-    // Функция загрузки контактов
-    function loadContacts(eventId) {
-        fetch('processes/get_contacts.php?event_id=' + eventId)
-            .then(response => response.json())
-            .then(data => {
-                const contactList = document.getElementById('contactList');
-                contactList.innerHTML = '';
-                
-                if (data.success && data.contacts.length > 0) {
-                    data.contacts.forEach(contact => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <div class="member-avatar">${getInitials(contact.name)}</div>
-                            <div>
-                                <div class="contact-name">${contact.name}</div>
-                                <div class="contact-phone">Телефон: ${contact.phone || 'Не указан'}</div>
-                                <div class="contact-email">Email: ${contact.email}</div>
-                            </div>
-                        `;
-                        contactList.appendChild(li);
-                    });
-                } else {
-                    contactList.innerHTML = '<li class="no-contacts">Контакты не найдены</li>';
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки контактов:', error);
-                const contactList = document.getElementById('contactList');
-                contactList.innerHTML = '<li class="no-contacts">Ошибка загрузки контактов</li>';
+    // Отправка медиафайлов
+    document.querySelectorAll('.btn-primary.full-width').forEach(button => {
+        if (button.textContent.includes('Отправить отчет')) {
+            button.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                uploadMedia(eventId);
             });
-    }
-    
-    // Функция загрузки медиафайлов
-    function uploadMedia(eventId) {
-        const formData = new FormData();
-        const filesInput = document.getElementById(`media-upload-${eventId}`);
-        const commentInput = document.querySelector(`#mediaUpload-${eventId} textarea`);
-        const submitButton = document.querySelector(`.btn-primary.full-width[data-event-id="${eventId}"]`);
-        
-        for (let i = 0; i < filesInput.files.length; i++) {
-            formData.append('media[]', filesInput.files[i]);
         }
-        
-        formData.append('event_id', eventId);
-        formData.append('comment', commentInput.value);
-        
-        // Показываем индикатор загрузки
-        const originalText = submitButton.innerHTML;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
-        submitButton.disabled = true;
-        
-        fetch('processes/upload_media.php', {
-            method: 'POST',
-            body: formData
-        })
+    });
+});
+
+// Функция загрузки контактов
+function loadContacts(eventId) {
+    const contactList = document.getElementById('contactList');
+    contactList.innerHTML = '<li class="no-contacts">Загрузка контактов...</li>';
+    
+    fetch('processes/get_contacts.php?event_id=' + eventId)
         .then(response => response.json())
         .then(data => {
-            // Восстанавливаем кнопку
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
+            contactList.innerHTML = '';
             
-            if (data.success) {
-                alert('Отчет успешно загружен!');
-                document.getElementById(`mediaUpload-${eventId}`).classList.remove('active');
-                const uploadButton = document.querySelector(`.btn-primary[data-event-id="${eventId}"]`);
+            if (data.success && data.contacts.length > 0) {
+                data.contacts.forEach(contact => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="member-avatar">${getInitials(contact.name)}</div>
+                        <div>
+                            <div class="contact-name">${contact.name}</div>
+                            <div class="contact-phone">Телефон: ${contact.phone || 'Не указан'}</div>
+                            <div class="contact-email">Email: ${contact.email}</div>
+                        </div>
+                    `;
+                    contactList.appendChild(li);
+                });
+            } else {
+                contactList.innerHTML = '<li class="no-contacts">Контакты не найдены</li>';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки контактов:', error);
+            contactList.innerHTML = '<li class="no-contacts">Ошибка загрузки контактов</li>';
+        });
+}
+
+// Функция загрузки медиафайлов
+function uploadMedia(eventId) {
+    const filesInput = document.getElementById(`media-upload-${eventId}`);
+    const commentInput = document.querySelector(`#mediaUpload-${eventId} textarea[name="comment"]`);
+    const submitButton = document.querySelector(`.btn-primary.full-width[data-event-id="${eventId}"]`);
+    
+    if (!filesInput.files.length) {
+        alert('Пожалуйста, выберите файлы для загрузки');
+        return;
+    }
+    
+    const formData = new FormData();
+    for (let i = 0; i < filesInput.files.length; i++) {
+        formData.append('media[]', filesInput.files[i]);
+    }
+    formData.append('event_id', eventId);
+    formData.append('comment', commentInput.value);
+    
+    // Показываем индикатор загрузки
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+    submitButton.disabled = true;
+    
+    fetch('processes/upload_media.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Отчет успешно загружен!');
+            // Закрываем форму и очищаем её
+            const mediaUpload = document.getElementById(`mediaUpload-${eventId}`);
+            mediaUpload.classList.remove('active');
+            filesInput.value = '';
+            commentInput.value = '';
+            document.getElementById(`mediaPreview-${eventId}`).innerHTML = '';
+            
+            // Возвращаем текст кнопки "Загрузить отчет"
+            const uploadButton = document.querySelector(`.btn-primary[data-event-id="${eventId}"]:not(.full-width)`);
+            if (uploadButton) {
                 uploadButton.innerHTML = '<i class="fas fa-upload"></i> Загрузить отчет';
-                
-                // Очищаем форму
-                filesInput.value = '';
-                commentInput.value = '';
-                document.getElementById(`mediaPreview-${eventId}`).innerHTML = '';
-            } else {
-                let errorMessage = 'Ошибка: ' + data.message;
-                if (data.errors && data.errors.length > 0) {
-                    errorMessage += '\n' + data.errors.join('\n');
-                }
-                alert(errorMessage);
             }
-        })
-        .catch(error => {
-            console.error('Upload error:', error);
-            
-            // Восстанавливаем кнопку
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-            
-            alert('Ошибка загрузки файлов: ' + error.message);
-        });
+        } else {
+            alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        alert('Ошибка загрузки файлов: ' + error.message);
+    })
+    .finally(() => {
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
+}
+
+// Функция завершения дела
+function completeEvent(eventId) {
+    if (!confirm('Вы уверены, что хотите завершить это дело? Это действие нельзя отменить.')) {
+        return;
     }
     
-    // Функция завершения дела
-    function completeEvent(eventId) {
-        fetch('processes/complete_event.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ event_id: eventId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Дело успешно завершено!');
-                location.reload();
-            } else {
-                alert('Ошибка: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Ошибка завершения дела: ' + error.message);
-        });
-    }
-    
-    // Функция для получения инициалов из строки
-    function getInitials(name) {
-        return name.split(' ').map(n => n.charAt(0).toUpperCase()).join('');
-    }
+    fetch('processes/complete_event.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event_id: eventId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Дело успешно завершено!');
+            location.reload();
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка завершения дела: ' + error.message);
+    });
+}
+
+// Функция для получения инициалов
+function getInitials(name) {
+    return name.split(' ').map(n => n.charAt(0).toUpperCase()).join('');
+}
 </script>
 </body>
 </html>

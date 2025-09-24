@@ -54,7 +54,8 @@ function submitMarker(lat, lon) {
         return;
     }
 
-    fetch("../processes/save_marker.php", {
+    // Исправляем путь - убираем ../ если файлы в одной директории
+    fetch("processes/save_marker.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -66,7 +67,12 @@ function submitMarker(lat, lon) {
             time: time 
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
     .then(data => {
         if (data.success) {
             alert("Метка успешно сохранена!");
@@ -87,20 +93,33 @@ function loadExistingMarkers() {
     // Очищаем существующие метки
     clearExistingMarkers();
 
-    fetch("../processes/load_markers.php")
-        .then(res => res.json())
-        .then(data => {
-            console.log("Данные с сервера:", data);
-            
-            if (!data || data.length === 0) return;
-            
-            data.forEach(marker => {
-                if (!marker.lat || !marker.lon) return;
+    // Исправляем путь - убираем ../
+    fetch("processes/load_markers.php")
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text(); // Сначала получаем как текст
+        })
+        .then(text => {
+            console.log("Raw response:", text);
+            try {
+                const data = JSON.parse(text);
+                console.log("Данные с сервера:", data);
                 
-                const placemark = createMarker(marker);
-                map.geoObjects.add(placemark);
-                existingMarkers.push(placemark);
-            });
+                if (!data || data.length === 0) return;
+                
+                data.forEach(marker => {
+                    if (!marker.lat || !marker.lon) return;
+                    
+                    const placemark = createMarker(marker);
+                    map.geoObjects.add(placemark);
+                    existingMarkers.push(placemark);
+                });
+            } catch (e) {
+                console.error("Ошибка парсинга JSON:", e, "Response text:", text);
+                throw new Error("Invalid JSON response");
+            }
         })
         .catch(err => {
             console.error("Ошибка загрузки меток:", err);
@@ -170,12 +189,18 @@ function joinEvent(eventId) {
     
     if (!confirm('Вы уверены, что хотите присоединиться к этому мероприятию?')) return;
     
-    fetch("../processes/join_event.php", {
+    // Исправляем путь - убираем ../
+    fetch("processes/join_event.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ event_id: eventId })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
     .then(data => {
         if (data.success) {
             alert("Вы успешно присоединились к мероприятию!");

@@ -607,7 +607,7 @@ body {
 }
 
 .sidebar-nav .nav-item .fa-map {
-    color: #ffffff; /* Цвет неактивной иконки */
+    color: #6c757d; /* Цвет неактивной иконки */
     transition: color 0.3s ease;
 }
 
@@ -616,206 +616,243 @@ body {
 }
 
 /* Стили для мобильной версии */
-/* Добавляем в конец файла 4.css */
-
-/* Мобильная адаптация */
 @media (max-width: 768px) {
-    .app-container {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        padding: 10px;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-    }
-
-    .sidebar-header {
-        padding: 0;
-        border-bottom: none;
-        margin-right: 15px;
-    }
-
-    .sidebar .user-profile {
-        display: none;
-    }
-
-    .sidebar-nav {
-        display: flex;
-        flex-direction: row;
-        padding: 0;
-        flex-grow: 0;
-    }
-
-    .nav-item {
-        padding: 10px;
-    }
-
-    .nav-item span {
-        display: none;
-    }
-
-    .main-content {
-        margin-top: 60px;
-    }
-
-    .content-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .content-body {
-        padding: 15px;
-    }
-
-    .tasks-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* Специфичные стили для completed_tasks.php */
-    .media-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
-
-    .media-item {
-        height: 100px;
-    }
-
-    /* Специфичные стили для leaders.php */
-    .leader-item {
-        padding: 15px;
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .leader-position {
-        margin-bottom: 10px;
-    }
-
-    .leader-avatar {
-        margin: 10px 0;
-    }
-
-    .leader-stats {
-        flex-direction: column;
-        gap: 5px;
+    .sidebar-nav .nav-item .fa-map {
+        font-size: 1.2rem;
     }
 }
-
-@media (max-width: 480px) {
-    .sidebar {
-        padding: 8px;
-    }
-
-    .app-logo {
-        font-size: 16px;
-    }
-
-    .app-logo i {
-        font-size: 20px;
-    }
-
-    .nav-item {
-        padding: 8px;
-    }
-
-    .content-header h1 {
-        font-size: 20px;
-    }
-
-    .task-card {
-        padding: 15px;
-    }
-
-    .task-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .task-card-footer {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .btn-primary, .btn-secondary, .btn-success {
-        width: 100%;
-        justify-content: center;
-    }
+.no-contacts {
+    text-align: center;
+    padding: 20px;
+    color: var(--gray);
+}
+}
+/* Модальное окно контактов */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
 }
 
-/* Дополнительные стили для мобильной навигации */
-.mobile-nav-toggle {
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--gray);
+}
+
+.modal-body {
+    padding: 25px;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.contacts-list {
+    list-style: none;
+    padding: 0;
+}
+
+.contacts-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.contacts-list li:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.contact-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.contact-phone, .contact-email {
+    font-size: 14px;
+    color: var(--gray);
+    margin-bottom: 2px;
+}
+
+.no-contacts {
+    text-align: center;
+    padding: 20px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+/* Стили для кнопок в профиле */
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.task-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Стили для формы загрузки */
+.media-upload-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--light);
+    border-radius: var(--border-radius);
     display: none;
 }
 
-@media (max-width: 768px) {
-    .mobile-nav-toggle {
-        display: block;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        margin-right: 15px;
-    }
-
-    .sidebar-nav {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        flex-direction: column;
-        display: none;
-        padding: 10px 0;
-    }
-
-    .sidebar-nav.active {
-        display: flex;
-    }
-
-    .nav-item {
-        width: 100%;
-        justify-content: center;
-        padding: 15px;
-    }
-
-    .nav-item span {
-        display: inline;
-        margin-left: 10px;
-    }
+.media-upload-section.active {
+    display: block;
+    animation: slideDown 0.3s ease;
 }
 
-/* Улучшенные стили для иконок в сайдбаре */
-.sidebar-nav .nav-item.active .fa-list-check,
-.sidebar-nav .nav-item.active .fa-check-circle,
-.sidebar-nav .nav-item.active .fa-chart-bar,
-.sidebar-nav .nav-item.active .fa-map {
-    color: white !important;
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.sidebar-nav .nav-item .fa-list-check,
-.sidebar-nav .nav-item .fa-check-circle,
-.sidebar-nav .nav-item .fa-chart-bar,
-.sidebar-nav .nav-item .fa-map {
+.media-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.media-item {
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.media-item img, .media-item video {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.media-comment {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 4px solid var(--success);
+}
+
+.no-media {
+    text-align: center;
+    padding: 20px;
+    color: var(--gray);
+    font-style: italic;
+}
+
+.task-completion-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(76, 201, 240, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--success);
+}
+
+.status-completed {
+    background: rgba(76, 201, 240, 0.15);
+    color: var(--success);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Стили для иконок в сайдбаре */
+.sidebar-nav .nav-item.active .fa-list-check {
+    color: white;
+}
+
+.sidebar-nav .nav-item .fa-list-check {
     color: rgba(255, 255, 255, 0.8);
     transition: color 0.3s ease;
 }
 
-.sidebar-nav .nav-item:hover .fa-list-check,
-.sidebar-nav .nav-item:hover .fa-check-circle,
-.sidebar-nav .nav-item:hover .fa-chart-bar,
-.sidebar-nav .nav-item:hover .fa-map {
-    color: white !important;
-}}
+.sidebar-nav .nav-item:hover .fa-list-check {
+    color: white;
+}
